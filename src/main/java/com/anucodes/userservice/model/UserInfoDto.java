@@ -1,13 +1,14 @@
 package com.anucodes.userservice.model;
 
+import com.anucodes.userservice.entities.UserInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -20,4 +21,16 @@ public class UserInfoDto {
     private String phoneNumber;
     private String email;
     private String profilePicture;
+
+    public UserInfo toUserInfo(){
+        return UserInfo.builder()
+                .userId(userId)
+                .username(username)
+                .firstName(firstName)
+                .lastName(lastName)
+                .phoneNumber(phoneNumber)
+                .email(email)
+                .profilePicture(profilePicture)
+                .build();
+    }
 }

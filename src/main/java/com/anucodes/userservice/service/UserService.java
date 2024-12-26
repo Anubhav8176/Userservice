@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+
 
 @Service
 public class UserService {
@@ -15,11 +18,20 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserInfoDto searchUser(String username) throws Exception{
+    //The function will add/update the user from the data.
+    public UserInfoDto createOrUpdate(UserInfoDto userInfoDto){
+        UnaryOperator<UserInfo> updatingUser = userInfo ->{
+            return userRepository.save(userInfoDto.toUserInfo());
+        };
 
-        Optional<UserInfo> fetchedUserInfo = userRepository.findByUsername(username);
-        if(fetchedUserInfo.isEmpty()) throw new Exception("No username found with username!!");
-        UserInfo userInfo = fetchedUserInfo.get();
+        Supplier<UserInfo> createUser = ()->{
+            return userRepository.save(userInfoDto.toUserInfo());
+        };
+
+        UserInfo userInfo = userRepository
+                .findByUserId(userInfoDto.getUserId())
+                .map(updatingUser)
+                .orElseGet(createUser);
 
         return new UserInfoDto(
                 userInfo.getUserId(),
@@ -30,8 +42,11 @@ public class UserService {
                 userInfo.getEmail(),
                 userInfo.getProfilePicture()
         );
+
     }
 
+
+    //The function will get the user from the data.
     public UserInfoDto getUser(UserInfoDto userDto) throws Exception{
 
         Optional<UserInfo> userInfoDto = userRepository.findByUserId(userDto.getUserId());
